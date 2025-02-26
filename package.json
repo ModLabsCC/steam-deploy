@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "steam-totp": "^2.1.2"
+  }
+}
