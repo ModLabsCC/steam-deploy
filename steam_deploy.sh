@@ -120,6 +120,9 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 nvm install stable
 
+cp /root/package.json ./package.json
+cp /root/totp.js ./totp.js
+
 npm i
 exort steam_totp="$(node totp.js)"
 echo $steam_totp
