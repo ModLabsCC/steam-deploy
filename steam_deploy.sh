@@ -96,36 +96,15 @@ EOF
 cat manifest.vdf
 echo ""
 
-if [ -n "$steam_totp" ]; then
+if [ -n "$steam_shared_secret" ]; then
   echo ""
-  echo "#################################"
-  echo "#     Using SteamGuard TOTP     #"
-  echo "#################################"
+  echo "##########################################"
+  echo "#     Using SteamGuard Shared Secret     #"
+  echo "##########################################"
   echo ""
 else
-  if [ ! -n "$configVdf" ]; then
-    echo "Config VDF input is missing or incomplete! Cannot proceed."
-    exit 1
-  fi
-
-  steam_totp="INVALID"
-
-  echo ""
-  echo "#################################"
-  echo "#    Copying SteamGuard Files   #"
-  echo "#################################"
-  echo ""
-
-  echo "Steam is installed in: $steamdir"
-
-  mkdir -p "$steamdir/config"
-
-  echo "Copying $steamdir/config/config.vdf..."
-  echo "$configVdf" | base64 -d > "$steamdir/config/config.vdf"
-  chmod 777 "$steamdir/config/config.vdf"
-
-  echo "Finished Copying SteamGuard Files!"
-  echo ""
+  echo "Shared Secret input is missing or incomplete! Cannot proceed."
+  exit 1
 fi
 
 echo ""
@@ -134,7 +113,19 @@ echo "#        Test login             #"
 echo "#################################"
 echo ""
 
-steamcmd steamcmd +login "$steam_username" "$steam_password" "$steam_totp" +quit;
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+nvm install lts
+nvm use lts
+
+npm i
+exort steam_totp="$(node totp.js)"
+echo $steam_totp
+
+steamcmd steamcmd +login "$steam_username" "$steam_password" "$steam_shared_secret" +quit;
 
 ret=$?
 if [ $ret -eq 0 ]; then
