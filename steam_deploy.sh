@@ -4,7 +4,11 @@ IFS=$'\n\t'
 
 steamdir=${STEAM_HOME:-$HOME/Steam}
 # this is relative to the action
-contentroot=$(pwd)/$rootPath
+if [[ "$rootPath" = /* ]]; then
+    contentroot="$rootPath"
+else
+    contentroot="$(pwd)/$rootPath"
+fi
 
 # these are temporary file we create, so in a tmpdir
 mkdir BuildOutput
