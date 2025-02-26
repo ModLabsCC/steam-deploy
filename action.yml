@@ -6,12 +6,13 @@ inputs:
     required: true
     default: ''
     description: 'The username of your builder account.'
+  password:
+    required: true
+    default: ''
+    description: 'The password of your builder account.'
   totp:
-    required: false
-    description: 'The TOTP to use for login. If set, `configVdf` will be ignored.'
-  configVdf:
-    required: false
-    description: 'The contents of STEAM_HOME/config/config.vdf. Required if `totp` is not set.'
+    required: true
+    description: 'The TOTP to use for login. Generate one using CyberAndrii/steam-totp.'
   appId:
     required: true
     default: ''
@@ -90,6 +91,7 @@ runs:
   image: Dockerfile
   env:
     steam_username: ${{ inputs.username }}
+    steam_password: ${{ inputs.password }}
     steam_totp: ${{ inputs.totp }}
     configVdf: ${{ inputs.configVdf }}
     appId: ${{ inputs.appId }}
