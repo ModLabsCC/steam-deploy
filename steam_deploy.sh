@@ -124,7 +124,7 @@ cp /root/package.json ./package.json
 cp /root/totp.js ./totp.js
 
 npm i
-exort steam_totp="$(node totp.js)"
+export steam_totp="$(node totp.js)"
 echo $steam_totp
 
 steamcmd steamcmd +login "$steam_username" "$steam_password" "$steam_totp" +quit;
