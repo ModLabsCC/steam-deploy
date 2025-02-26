@@ -125,7 +125,7 @@ npm i
 exort steam_totp="$(node totp.js)"
 echo $steam_totp
 
-steamcmd steamcmd +login "$steam_username" "$steam_password" "$steam_shared_secret" +quit;
+steamcmd steamcmd +login "$steam_username" "$steam_password" "$steam_totp" +quit;
 
 ret=$?
 if [ $ret -eq 0 ]; then
