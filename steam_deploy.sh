@@ -11,7 +11,8 @@ else
 fi
 
 # these are temporary file we create, so in a tmpdir
-mkdir BuildOutput
+build_output_path=$(mktemp -d)/BuildOutput
+mkdir -p $build_output_path
 manifest_path=$(pwd)/manifest.vdf
 
 echo ""
@@ -87,7 +88,7 @@ cat << EOF > "manifest.vdf"
 {
   "appid" "$appId"
   "desc" "$buildDescription"
-  "buildoutput" "BuildOutput"
+  "buildoutput" "$build_output_path"
   "contentroot" "$contentroot"
   "setlive" "$releaseBranch"
 
@@ -194,9 +195,9 @@ steamcmd +login "$steam_username" +run_app_build "$manifest_path" +quit || (
     echo "#             Output            #"
     echo "#################################"
     echo ""
-    ls -Ralph BuildOutput
+    ls -Ralph $build_output_path
 
-    for f in BuildOutput/*.log; do
+    for f in $build_output_path/*.log; do
       echo "######## $f"
       cat "$f"
       echo
