@@ -1,7 +1,5 @@
 # Steam Deploy
 
-[![Actions status](https://github.com/game-ci/steam-deploy/workflows/🚀/badge.svg?event=push&branch=main)](https://github.com/game-ci/steam-deploy/actions/workflows/main.yml)
-
 Github Action to deploy a game to Steam
 
 ## Setup
@@ -31,42 +29,17 @@ In order to configure this action, configure a step that looks like the followin
 
 _(The parameters are explained below)_
 
-Option A. Using MFA files
-
 ```yaml
 jobs:
   deployToSteam:
     runs-on: ubuntu-latest
     steps:
-      - uses: game-ci/steam-deploy@v3
+      - name: Deploy to Steam
+        uses: ModLabsCC/steam-deploy@v3
         with:
-          username: ${{ secrets.STEAM_USERNAME }}          
-          configVdf: ${{ secrets.STEAM_CONFIG_VDF}}          
-          appId: 1234560
-          buildDescription: v1.2.3
-          rootPath: build
-          depot1Path: StandaloneWindows64
-          depot1InstallScriptPath: StandaloneWindows64/install_script.vdf
-          depot2Path: StandaloneLinux64
-          releaseBranch: prerelease
-```
-
-Option B. Using TOTP
-
-```yaml
-jobs:
-  deployToSteam:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: CyberAndrii/steam-totp@v1
-        name: Generate TOTP
-        id: steam-totp
-        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          password: ${{ secrets.STEAM_PASSWORD }}
           shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
-      - uses: game-ci/steam-deploy@v3
-        with:
-          username: ${{ secrets.STEAM_USERNAME }}          
-          totp: ${{ steps.steam-totp.outputs.code }}
           appId: 1234560
           buildDescription: v1.2.3
           rootPath: build
@@ -81,22 +54,14 @@ jobs:
 
 The username of the Steam Build Account that you created in setup step 1.
 
-#### totp
+#### password
 
-Deploying to Steam using TOTP. If this is not passed, `configVdf` is required.
+The password for your Steam Build Account.
 
-#### configVdf
+#### shared_secret
 
-Deploying to Steam requires using Multi-Factor Authentication (MFA) through Steam Guard unless `totp` is passed.
-This means that simply using username and password isn't enough to authenticate with Steam. 
-However, it is possible to go through the MFA process only once by setting up GitHub Secrets for `configVdf` with these steps:
-1. Install [Valve's offical steamcmd](https://partner.steamgames.com/doc/sdk/uploading#1) on your local machine. All following steps will also be done on your local machine.
-1. Try to login with `steamcmd +login <username> <password> +quit`, which may prompt for the MFA code. If so, type in the MFA code that was emailed to your builder account's email address.
-1. Validate that the MFA process is complete by running `steamcmd +login <username> +quit` again. It should not ask for the MFA code again.
-1. The folder from which you run `steamcmd` will now contain an updated `config/config.vdf` file. Use `cat config/config.vdf | base64 > config_base64.txt` to encode the file. Copy the contents of `config_base64.txt` to a GitHub Secret `STEAM_CONFIG_VDF`.
-   - macOS: `cat ~/Library/Application\ Support/Steam/config/config.vdf | base64 > config_base64.txt`
-1. `If:` when running the action you recieve another MFA code via email, run `steamcmd +set_steam_guard_code <code>` on your local machine and repeat the `config.vdf` encoding and replace secret `STEAM_CONFIG_VDF` with its contents.
-2. If the action fails with `Logging in user ... to Steam Public...FAILED (License expired)`, then you need to regenerate your local VDF file with a new Steam guard code.
+A TOTP "shared secret" from the Steam Guard Mobile Authenticator for this account.  
+This allows the action to generate time-based login codes for two-factor authentication.
 
 #### appId
 
@@ -119,6 +84,13 @@ Where X is any number between 1 and 9 (inclusive both).
 The relative path following your root path for the files to be included in this depot.
 
 If your appId is 125000 then the depots 125001 ... 125009 will be assumed.
+
+#### depot[X]InstallScriptPath
+
+Where X is any number between 1 and 9 (inclusive both).
+
+Optional. Path to a custom install script for a depot, relative to rootPath.
+When omitted, a default install script will be generated.
 
 #### firstDepotIdOverride
 
